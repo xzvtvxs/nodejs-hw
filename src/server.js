@@ -2,9 +2,10 @@
 import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
+import dotenv from 'dotenv';
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;;
+const PORT = process.env.PORT || 3000;;
 
 app.use(express.json());
 app.use(cors());
@@ -23,6 +24,7 @@ app.use(
     },
   }),
 );
+dotenv.config();
 
 
 app.get('/notes', (req, res) => {
