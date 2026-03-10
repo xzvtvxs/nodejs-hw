@@ -9,4 +9,4 @@ const noteSchema = new Schema({
   versionKey: false,
 });
 
-export const NoteCollection = model('notes', noteSchema);
+export const Note = model('Note', noteSchema);
