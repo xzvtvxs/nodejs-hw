@@ -6,20 +6,24 @@ export const getAllNotes = async (req, res) => {
   const { page = 1, perPage = 10 } = req.query;
   const offset = (page - 1) * perPage;
 
-  const query = {};
+  const notesQuery = Note.find();
   if (filters.tag) {
-    query.tag = filters.tag;
+    notesQuery.where("tag").equals(filters.tag);
+    // query.tag = filters.tag;
   }
   if (filters.search) {
-    query.$text = { search: filters.search };
+    // query.$text = { search: filters.search };
+    notesQuery.where({ $text: { search: filters.search } });
   }
   if (filters.title) {
-    query.title = filters.title;
+    // query.title = filters.title;
+    notesQuery.where("title").equals(filters.title);
   }
   if (filters.content) {
-    query.content = filters.content;
+    // query.content = filters.content;
+    notesQuery.where("content").equals(filters.content);
   }
-  const notesQuery = Note.find(query);
+
   const [totalNotes, notes] = await Promise.all([
     notesQuery.clone().countDocuments(),
     notesQuery.skip(offset).limit(perPage),
