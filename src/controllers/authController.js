@@ -45,7 +45,7 @@ export const loginUser = async (req, res) => {
     throw createHttpError(401, 'Invalid credentials');
   }
 
-  Session.findOneAndDelete({ userId: user._id });
+  await Session.findOneAndDelete({ userId: user._id });
 
   const session = await createSession(user._id);
 
@@ -83,12 +83,13 @@ export const logoutUser = async(req, res) => {
 
   if (sessionId) {
     await Session.findByIdAndDelete(sessionId);
-    res.clearCookie('sessionId');
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
   }
 
-  res.status(204);
+  res.clearCookie('sessionId');
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+
+  res.sendStatus(204);
 };
 
 
