@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { Session } from 'inspector/promises';
-import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time';
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 
 export async function createSession(userId) {
   const accessToken = crypto.randomBytes(30).toString('base64');
