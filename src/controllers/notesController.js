@@ -41,9 +41,9 @@ export const getNoteById = async (req, res) => {
 
     const { noteId } = req.params;
 
-  const result = await Note.find({
+  const result = await Note.findOne({
     _id: noteId,
-    user: user._id,
+    userId: user._id,
     });
     if (!result) {
       throw createError(404, 'Note not found');
@@ -84,7 +84,7 @@ export const updateNote = async (req, res) => {
   const { noteId } = req.params;
   const body = req.body;
 
-  const result = await Note.findOneAndUpdate({_id: noteId, userId: user._id,}, body, {new: true});
+  const result = await Note.findOneAndUpdate({_id: noteId, userId: user._id,}, body, {returnDocument: 'after'});
   if (!result) {
     throw createError(404, 'Note not found');
   }

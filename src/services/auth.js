@@ -1,8 +1,8 @@
 import crypto from 'crypto';
-import { Session } from 'inspector/promises';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
+import { Session } from '../models/session.js';
 
-export async function createSession(userId) {
+export function createSession(userId) {
   const accessToken = crypto.randomBytes(30).toString('base64');
 
   const refreshToken = crypto.randomBytes(30).toString('base64');
@@ -15,7 +15,7 @@ export async function createSession(userId) {
   });
 };
 
-export async function setSessionCookies(res, session) {
+export function setSessionCookies(res, session) {
   res.cookie('accessToken', session.accessToken, {
     httpOnly: true,
     secure: true,

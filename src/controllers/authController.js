@@ -14,7 +14,7 @@ export const registerUser = async (req, res) => {
     throw createHttpError(400, 'Email in use');
   }
 
-  const hashPassword = bcrypt.hash(password, 10);
+  const hashPassword = await bcrypt.hash(password, 10);
 
   const user = await User.create({
     email,
@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
 export const refreshUserSession = async (req, res) => {
   const { sessionId, refreshToken } = req.cookies;
 
-  const session = await Session.findOne({ sessionId, refreshToken });
+  const session = await Session.findOne({ _id : sessionId, refreshToken });
 
   if (!session) {
     throw createHttpError(401, 'Session not found');
@@ -83,10 +83,12 @@ export const logoutUser = async(req, res) => {
 
   if (sessionId) {
     await Session.findByIdAndDelete(sessionId);
-    res.clearCookie();
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
   }
 
-  res.status(204).json();
+  res.status(204);
 };
 
 
