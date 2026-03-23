@@ -149,7 +149,10 @@ export const resetPassword = async (req, res) => {
     throw createHttpError(401, 'Invalid or expired token');
   }
 
-  const user = await User.findById(result.sub);
+  const user = await User.findOne({
+    _id: result.sub,
+    email: result.email,
+  });
 
   if (!user) {
     throw createHttpError(404, 'User not found');
