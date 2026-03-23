@@ -10,6 +10,7 @@ import { notFoundHandler} from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRouter from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 
 
@@ -26,6 +27,7 @@ await connectMongoDB();
 
 app.use(notesRouter);
 app.use(authRoutes);
+app.use(userRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());

@@ -3,7 +3,11 @@ import { User } from "../models/user.js";
 import bcrypt from 'bcrypt';
 import { createSession, setSessionCookies } from "../services/auth.js";
 import { Session } from "../models/session.js";
-
+import jwt from "jsonwebtoken";
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import Handlebars from "handlebars";
+import { sendEmail } from "../utils/sendMail.js";
 
 export const registerUser = async (req, res) => {
   const { email, password, username} = req.body;
@@ -92,5 +96,74 @@ export const logoutUser = async(req, res) => {
   res.sendStatus(204);
 };
 
+export const requestResetEmail = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(200,).json({ message: 'Password reset email sent successfully!!!' });
+  }
+
+  const resetToken = jwt.sign({
+    sub: user._id,
+    email: email,
+  }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+  const pathFile = path.resolve('src/templates/reset-password-email.html');
+
+  const HTMLcode = await fs.readFile(pathFile, 'utf-8');
+
+  const messageTemplate = Handlebars.compile(HTMLcode);
+
+  const html = messageTemplate({
+    link: `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`,
+    name: user.username,
+    token: resetToken,
+  });
+
+  try {
+    await sendEmail({
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: 'Reset password',
+    html: html,
+  });
+  } catch (error) {
+    console.log(error);
+
+    throw createHttpError(500, 'Failed to send the email, please try again later.');
+  }
+
+  res.status(200).json({ message: 'Password reset email sent successfully' });
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+
+  let result;
+
+  try {
+    result = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    throw createHttpError(401, 'Invalid or expired token');
+  }
+
+  const user = await User.findById(result.sub);
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const hashPassword = await bcrypt.hash(password, 10);
+
+  user.password = hashPassword;
+
+  await user.save();
+
+  res.status(200).json( {
+    message: 'Password reset successfully'
+  });
+};
 
 
