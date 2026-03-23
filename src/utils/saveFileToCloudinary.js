@@ -1,5 +1,6 @@
 import { Readable } from 'node:stream';
 import { v2 as cloudinary } from 'cloudinary';
+import crypto from 'crypto';
 
 cloudinary.config({
   secure: true,
@@ -8,13 +9,13 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function saveFileToCloudinary(buffer, userId) {
+export async function saveFileToCloudinary(buffer) {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: 'students-app/avatars',
         resource_type: 'image',
-        public_id: `avatar_${userId}`,
+        public_id: `avatar_${crypto.randomBytes(30).toString('base64')}`,
         overwrite: true,
         unique_filename: false,
       },
